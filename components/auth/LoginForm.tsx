@@ -20,11 +20,17 @@ import { FormError } from "../form-error";
 import { FormSuccess } from "../form-success";
 import { login } from "@/actions/login";
 import { MdRotateLeft } from "react-icons/md";
+import { useSearchParams } from "next/navigation";
 
 export const LoginForm = () => {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
+  const searchParams = useSearchParams();
+  const urlError =
+    searchParams.get("error") === "OAuthAccountNotLinked"
+      ? "Account not linked, already in use"
+      : "";
 
   // Form Hook
   const form = useForm<z.infer<typeof LoginSchema>>({
@@ -40,12 +46,9 @@ export const LoginForm = () => {
     startTransition(() => {
       login(data)
         .then((data) => {
-          if (data && data.error) {
+          if (data) {
             setError(data.error);
-            setSuccess("");
-          } else {
-            setSuccess("Login Successful");
-            setError("");
+            setSuccess(data.success);
           }
         })
         .finally(() => {
@@ -112,7 +115,7 @@ export const LoginForm = () => {
           </div>
 
           <div className="space-y-4">
-            <FormError message={error} />
+            <FormError message={error || urlError} />
             <FormSuccess message={success} />
             <Button disabled={isPending} type="submit" className="w-full">
               {isPending ? (
