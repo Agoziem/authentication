@@ -13,39 +13,34 @@ import {
   FormField,
   FormControl,
 } from "../ui/form";
-import { LoginSchema } from "@/schemas";
+import { NewPasswordSchema } from "@/schemas";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { FormError } from "../form-error";
 import { FormSuccess } from "../form-success";
-import { login } from "@/actions/login";
+import { reset } from "@/actions/new-password";
 import { MdRotateLeft } from "react-icons/md";
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
 
-export const LoginForm = () => {
+export const NewPasswordForm = () => {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
   const searchParams = useSearchParams();
-  const urlError =
-    searchParams.get("error") === "OAuthAccountNotLinked"
-      ? "Account not linked, already in use"
-      : "";
+  const token = searchParams.get("token");
 
   // Form Hook
-  const form = useForm<z.infer<typeof LoginSchema>>({
-    resolver: zodResolver(LoginSchema),
+  const form = useForm<z.infer<typeof NewPasswordSchema>>({
+    resolver: zodResolver(NewPasswordSchema),
     defaultValues: {
-      email: "",
       password: "",
     },
   });
 
   // Handle Submit
-  const handleSubmit = (data: z.infer<typeof LoginSchema>) => {
+  const handleSubmit = (data: z.infer<typeof NewPasswordSchema>) => {
     startTransition(() => {
-      login(data)
+      reset(data, token)
         .then((data) => {
           if (data) {
             setError(data.error);
@@ -64,36 +59,15 @@ export const LoginForm = () => {
 
   return (
     <CardWrapper
-      headerLabel={"Welcome back"}
-      backButtonHref={"/auth/register"}
-      backButtonLabel={"Don't have an account?"}
-      showSocial={true}
+      headerLabel={"enter your New Password?"}
+      backButtonHref={"/auth/login"}
+      backButtonLabel={"Back to Login"}
+      showSocial={false}
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
           <div className="space-y-4">
             {/* Email Field */}
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel htmlFor="email">Email</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      disabled={isPending}
-                      id="email"
-                      type="email"
-                      placeholder="chiagoziendukwe90@gmail.com"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Password Field */}
             <FormField
               control={form.control}
               name="password"
@@ -106,17 +80,9 @@ export const LoginForm = () => {
                       disabled={isPending}
                       id="password"
                       type="password"
-                      placeholder="********"
+                      placeholder="******"
                     />
                   </FormControl>
-                  <Button
-                    size={"sm"}
-                    variant={"link"}
-                    className="text-sm px-0 font-normal"
-                    asChild
-                  >
-                    <Link href={"/auth/reset"}>Forgot Password?</Link>
-                  </Button>
                   <FormMessage />
                 </FormItem>
               )}
@@ -124,16 +90,16 @@ export const LoginForm = () => {
           </div>
 
           <div className="space-y-4">
-            <FormError message={error || urlError} />
+            <FormError message={error} />
             <FormSuccess message={success} />
             <Button disabled={isPending} type="submit" className="w-full">
               {isPending ? (
                 <>
                   <MdRotateLeft className="animate-spin size-6 me-4" />{" "}
-                  Loading...{" "}
+                    Reseting Password...{" "}
                 </>
               ) : (
-                "Login"
+                "Reset Password"
               )}
             </Button>
           </div>
