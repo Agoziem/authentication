@@ -1,20 +1,15 @@
+"use client";
 import React from "react";
-import { auth,signOut } from "@/auth";
+import { useCurrentUser } from "@/hooks/use-current-user";
 
-const SettingsPage = async () => {
-  const session = await auth();
+const SettingsPage = () => {
+  const user = useCurrentUser();
 
-  session?.user?.image 
-  return <div>{JSON.stringify(session)}
-    <form action={ async () => {
-      "use server"
-      await signOut();
-    } }>
-      <button type="submit">
-        Sign out
-      </button>
-    </form>
-  </div>;
+  return (
+    <div className="bg-white p-10 rounded-xl">
+      
+    </div>
+  );
 };
 
 export default SettingsPage;
