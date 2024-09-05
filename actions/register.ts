@@ -7,12 +7,12 @@ import { generateVerificationToken } from "@/utils/tokens";
 import { SendVerificationEmail } from "@/utils/mail";
 
 export const register = async (values: z.infer<typeof RegisterSchema>) => {
-  const ValidatedData = RegisterSchema.safeParse(values);
 
+  // Validate the data
+  const ValidatedData = RegisterSchema.safeParse(values);
   if (!ValidatedData.success) {
     return { error: "Invalid Credentials, try again later" };
   }
-
   const { email, password, name } = ValidatedData.data;
 
   // Hash the password

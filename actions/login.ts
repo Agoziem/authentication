@@ -15,19 +15,26 @@ import { db } from "@/lib/db";
 import { getTwoFactorConfirmationbyUserId } from "@/utils/two-factor-confirmation";
 
 export const login = async (values: z.infer<typeof LoginSchema>) => {
+  // ----------------------------------------------
   // Validate the data
+  // ----------------------------------------------
   const ValidatedData = LoginSchema.safeParse(values);
   if (!ValidatedData.success) {
     return { error: "Invalid Credentials, try again later" };
   }
   const { email, password, code } = ValidatedData.data;
 
+  // ----------------------------------------------
   // Check if user exists
+  // ----------------------------------------------
   const existingUser = await getUserByEmail(email);
   if (!existingUser || !existingUser.email) {
     return { error: "User account does not exist!" };
   }
-  // Check if user is verified
+
+  // ----------------------------------------------
+  // User email Verification
+  // ----------------------------------------------
   if (!existingUser.emailVerified) {
     const verificationToken = await generateVerificationToken(
       existingUser.email
@@ -39,7 +46,9 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
     return { success: "Account not verified, verification email sent!" };
   }
 
-  // Check if user has two-factor enabled
+  // ---------------------------------------------
+  // user two-factor Authentication Verification
+  // ----------------------------------------------
   if (existingUser.isTwoFactorEnabled && existingUser.email) {
     if (code) {
       // Check if two-factor code is valid
@@ -83,7 +92,9 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
     }
   }
 
-  // Sign in the user
+  // -------------------------------------------------
+  // Sign in the user with Auth js
+  // -------------------------------------------------
   try {
     await signIn("credentials", {
       email,
