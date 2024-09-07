@@ -3,6 +3,8 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Poppins } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
+import { Toaster } from "@/components/ui/sonner";
+import { Session } from "next-auth";
 import { auth } from "@/auth";
 
 const font = Poppins({
@@ -22,10 +24,13 @@ export default async function RootLayout({
 }>) {
   const session = await auth();
   return (
-    <SessionProvider session={session}>
-      <html lang="en">
-        <body className={cn(font.className, "antialiased")}>{children}</body>
-      </html>
-    </SessionProvider>
+    <html lang="en">
+      <body className={cn(font.className, "antialiased")}>
+        <SessionProvider session={session}>
+          {children}
+          <Toaster />
+        </SessionProvider>
+      </body>
+    </html>
   );
 }
